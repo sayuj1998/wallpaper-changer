@@ -1,17 +1,17 @@
-# find the wallpaper file
-# os.walk the files in that folder
-# randomize it using random module
-# make it an hour by default
-# have optional cmd line argument that will ask how often this script should run (minutes)
 # use subprocess to use schtasks which should run this script depending on user input on cmd line
 # file called README.md that explains what this script is and how to use it
 
 import os, sys, random, time, ctypes
 
-USED_FILE_PATH = os.path.join("~", "used_wallpapers.txt")
+USED_FILE_PATH = os.path.expanduser(os.path.join("~",".used_wallpapers.txt"))
+
+# Make used wallpaper file if it doesn't exist
+if not os.path.exists(USED_FILE_PATH):
+    open(USED_FILE_PATH, 'w').close()
 
 # Function to change wallpaper on Windows
 def change_wallpaper(file_path):
+    print("Changing wallpaper: ", file_path) #debugging
     ctypes.windll.user32.SystemParametersInfoW(20, 0, file_path, 3)
 
 # Function to read used wallpapers from file
@@ -21,7 +21,15 @@ def parse_used_files():
         with open(USED_FILE_PATH) as file:
             for line in file:
                 used_wallpapers.add(line.strip())
+    print("Used wallpapers: ", used_wallpapers) #debugging
     return used_wallpapers
+
+# Function to write used file
+def write_used_files(used_wallpapers):
+    print("Writing used wallpapers: ", used_wallpapers) #debugging
+    with open(USED_FILE_PATH, 'a') as file:
+        for wallpaper in used_wallpapers:
+            file.write(wallpaper)
 
 # Function to get the directory from the command-line
 def get_directory(directory_path):
@@ -49,5 +57,5 @@ if __name__ == "__main__":
         print("How to use: python wallpaper.py <path_to_directory>")
         sys.exit(1)
 
-    main(sys.argv[1])
-
+    directory_path = sys.argv[1]
+    main(directory_path)
