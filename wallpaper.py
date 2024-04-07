@@ -1,16 +1,9 @@
-# use subprocess to use schtasks which should run this script depending on user input on cmd line
-# file called README.md that explains what this script is and how to use it
-
 import os, sys, random, time, ctypes
 from typing import Set
 from pathlib import Path
 
 USED_FILE_PATH = Path(os.path.expanduser(os.path.join("~",".used_wallpapers.txt")))
 ALLOWED_EXTENSIONS = {".png",".jpeg",".gif",".jpg",".apng",".avif",".bmp",".svg",".webp",".tiff",".ai",".psd",".heif"}
-
-if not os.path.exists(USED_FILE_PATH):
-    """Make used wallpaper file if it doesn't exist"""
-    open(USED_FILE_PATH, 'w').close()
 
 def change_wallpaper(file_path:str):
     """Function to change wallpaper on Windows"""
@@ -48,7 +41,7 @@ def clear_used_wallpapers():
     USED_FILE_PATH.open("w").close()
 
 def main(directory_path:Path):
-    minutes = int(input("Set wallpaper change time in minutes: "))
+    minutes = float(input("Set wallpaper change time in minutes: "))
     seconds = minutes * 60
 
     while True:
@@ -61,13 +54,9 @@ def main(directory_path:Path):
             unique_wallpapers = wallpapers
             print("Used wallpaper cleared")
 
-        new_wallpaper = unique_wallpapers.pop()
+        new_wallpaper = random.choice(list(unique_wallpapers))
         change_wallpaper(str(new_wallpaper))
         append_to_used_wallpapers(str(new_wallpaper))
-
-
-
-      #  random_wallpaper = random.choice(os.listdir(directory_path))
 
         print(f"Wallpaper changed. Waiting for {minutes} minute(s).")
         time.sleep(seconds)
