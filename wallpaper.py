@@ -2,37 +2,36 @@
 # file called README.md that explains what this script is and how to use it
 
 import os, sys, random, time, ctypes
+from typing import Set
+from pathlib import Path
 
-USED_FILE_PATH = os.path.expanduser(os.path.join("~",".used_wallpapers.txt"))
+USED_FILE_PATH = Path(os.path.expanduser(os.path.join("~",".used_wallpapers.txt")))
+ALLOWED_EXTENSIONS = {".png",".jpeg",".gif",".jpg",".apng",".avif",".bmp",".svg",".webp",".tiff",".ai",".psd",".heif"}
 
-# Make used wallpaper file if it doesn't exist
 if not os.path.exists(USED_FILE_PATH):
+    """Make used wallpaper file if it doesn't exist"""
     open(USED_FILE_PATH, 'w').close()
 
-# Function to change wallpaper on Windows
-def change_wallpaper(file_path):
-    print("Changing wallpaper: ", file_path) #debugging
+def change_wallpaper(file_path:str):
+    """Function to change wallpaper on Windows"""
+    print(f"Changing wallpaper: {file_path}")
     ctypes.windll.user32.SystemParametersInfoW(20, 0, file_path, 3)
 
-# Function to read used wallpapers from file
-def parse_used_files():
-    used_wallpapers = set()
-    if os.path.exists(USED_FILE_PATH):
-        with open(USED_FILE_PATH) as file:
-            for line in file:
-                used_wallpapers.add(line.strip())
-    print("Used wallpapers: ", used_wallpapers) #debugging
-    return used_wallpapers
+def get_wallpapers(root:Path) -> Set[Path]:
+    """Go to directory get all the files names"""
+    if root.exists():
+        wallpapers = {item for item in root.iterdir() if item.suffix in ALLOWED_EXTENSIONS}
+        return wallpapers
+    return set()
 
-# Function to write used file
-def write_used_files(used_wallpapers):
-    print("Writing used wallpapers: ", used_wallpapers) #debugging
-    with open(USED_FILE_PATH, 'a') as file:
-        for wallpaper in used_wallpapers:
-            file.write(wallpaper)
+def get_used_wallpapers() -> Set[Path]:
+    """Reading the cache"""
+    if USED_FILE_PATH.exists():
+        return {Path(i) for i in USED_FILE_PATH.read_text().splitlines()}
+    return set()
 
-# Function to get the directory from the command-line
 def get_directory(directory_path):
+    """Get the directory from the command-line"""
     if not os.path.isdir(directory_path):
         print("Invalid directory path.")
         return set()
@@ -40,22 +39,44 @@ def get_directory(directory_path):
     file_names = set(os.listdir(directory_path))
     return file_names
 
-def main(directory_path):
+def append_to_used_wallpapers(path:str):
+    """Appending path to the file"""
+    with USED_FILE_PATH.open("a") as file:
+        print(path, file=file)
+
+def clear_used_wallpapers():
+    USED_FILE_PATH.open("w").close()
+
+def main(directory_path:Path):
     minutes = int(input("Set wallpaper change time in minutes: "))
     seconds = minutes * 60
 
     while True:
-        random_wallpaper = random.choice(os.listdir(directory_path))
-        change_wallpaper(os.path.join(directory_path, random_wallpaper))
+        wallpapers = get_wallpapers(directory_path)
+        used_wallpapers = get_used_wallpapers()
+        unique_wallpapers = wallpapers - used_wallpapers
 
-        print("Wallpaper changed. Waiting for", minutes, "minute(s).")
+        if len(unique_wallpapers) == 0:
+            clear_used_wallpapers()
+            unique_wallpapers = wallpapers
+            print("Used wallpaper cleared")
+
+        new_wallpaper = unique_wallpapers.pop()
+        change_wallpaper(str(new_wallpaper))
+        append_to_used_wallpapers(str(new_wallpaper))
+
+
+
+      #  random_wallpaper = random.choice(os.listdir(directory_path))
+
+        print(f"Wallpaper changed. Waiting for {minutes} minute(s).")
         time.sleep(seconds)
 
-    # Check if the directory path is provided
 if __name__ == "__main__":
+    '''Check if the directory path is provided'''
     if len(sys.argv) < 2:
         print("How to use: python wallpaper.py <path_to_directory>")
         sys.exit(1)
 
     directory_path = sys.argv[1]
-    main(directory_path)
+    main(Path(directory_path))
