@@ -17,27 +17,18 @@ def get_wallpapers(root:Path) -> Set[Path]:
         return wallpapers
     return set()
 
-def get_used_wallpapers() -> Set[Path]:
+def get_used_wallpapers() -> Set[Path]: # Make it a class
     """Reading the cache"""
     if USED_FILE_PATH.exists():
         return {Path(i) for i in USED_FILE_PATH.read_text().splitlines()}
     return set()
 
-def get_directory(directory_path):
-    """Get the directory from the command-line"""
-    if not os.path.isdir(directory_path):
-        print("Invalid directory path.")
-        return set()
-
-    file_names = set(os.listdir(directory_path))
-    return file_names
-
-def append_to_used_wallpapers(path:str):
+def append_to_used_wallpapers(path:str): # Make it a class
     """Appending path to the file"""
     with USED_FILE_PATH.open("a") as file:
         print(path, file=file)
 
-def clear_used_wallpapers():
+def clear_used_wallpapers(): # Make it a class
     USED_FILE_PATH.open("w").close()
 
 def main(directory_path:Path):
