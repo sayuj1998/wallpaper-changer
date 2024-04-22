@@ -3,7 +3,7 @@ Python script designed to automatically change wallpapers at specified intervals
 
 ## Features
 * Automatically changes wallpapers at specified intervals.
-* Supports image formats including `.png`, `.jpeg`,`.gif`,`.jpg`,`.apng`,`.avif`,`.bmp`,`.svg`,`.webp`,`.tiff`,`.ai`,`.psd``.heif`
+* Supports image formats including `.png`, `.jpeg`,`.gif`,`.jpg`,`.apng`,`.avif`,`.bmp`,`.svg`,`.webp`,`.tiff`,`.ai`,`.psd`,`.heif`
 * Keeps track of used wallpapers to avoid repetition.
 * Customizable interval time for wallpaper changes.
 
